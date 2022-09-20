@@ -1,11 +1,11 @@
-from django.db.models import Sum
+# from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+# from rest_framework.permissions import AllowAny
 
 from recipes.filters import RecipeFilter, IngredientSearchFilter
 from recipes.models import Favorite, Recipe, Cart, IngredientAmount
@@ -13,6 +13,7 @@ from recipes.models import Ingredient, Tag
 from recipes.permissions import AuthorOrReadOnly
 from recipes.serializers import RecipeSerializer, ShortRecipeSerializer
 from recipes.serializers import IngredientSerializer, TagSerializer
+
 
 class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (AuthorOrReadOnly,)
@@ -29,7 +30,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         relation = model.objects.filter(user=user, recipe=recipe)
         if relation.exists():
             return Response(
-                {'errors': f'Невозможно добавить рецепт повторно'},
+                {'errors': f'Невозможно добавить рецепт {recipe} повторно'},
                 status=status.HTTP_400_BAD_REQUEST)
         model.objects.create(user=user, recipe=recipe)
         serializer = ShortRecipeSerializer(recipe)
@@ -40,7 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         relation = model.objects.filter(user=user, recipe=recipe)
         if not relation.exists():
             return Response(
-                {'errors': f'Невозможно удалить рецепт повторно'},
+                {'errors': f'Невозможно удалить рецепт {recipe} повторно'},
                 status=status.HTTP_400_BAD_REQUEST)
         relation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -78,7 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__cart__user=user).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'amount')
-        
+
         final_list = {}
         for item in ingredients:
             name = item[0]

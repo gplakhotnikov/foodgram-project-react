@@ -1,6 +1,6 @@
 import os
 import psycopg2
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 HOST = os.getenv('DB_HOST')
 NAME = os.getenv('DB_NAME')
