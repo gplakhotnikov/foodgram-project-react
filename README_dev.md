@@ -7,7 +7,7 @@ docker tag foodgram_backend gplakhotnikov/foodgram_backend
 docker push gplakhotnikov/foodgram_backend
 
 
---- Сборка через compose:
+---Сборка через compose:
 
 docker-compose up -d
 docker-compose exec backend python manage.py makemigrations
