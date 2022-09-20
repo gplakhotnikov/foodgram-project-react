@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.validators import ValidationError
 
 from recipes.models import Ingredient, Tag
@@ -10,7 +11,7 @@ def validate_ingredients(data):
             {'ingredients': ['Заполните поле ингридиентов']})
     if len(data) < 1:
         raise ValidationError(
-            {'ingredients': ['Необходимо выбрать минимум один ингридиент']})
+            {'ingredients': ['Необходимо выбрать ингридиенты']})
     for ingredient in data:
         if not ingredient.get('id'):
             raise ValidationError(
@@ -24,9 +25,16 @@ def validate_ingredients(data):
                 {'ingredients': ['Нельзя дублировать ингридиенты']})
         unique.append(id)
         amount = int(ingredient.get('amount'))
-        if amount < 1:
+        if amount < settings.MIN_AMMOUNT:
             raise ValidationError(
-                {'amount': ['Укажите правильное количество']})
+                {'amount': ['Необходимо выбрать большее количество ингридиента']})
+    return data
+
+
+def validate_cooking_time(data):
+    if int(data) < settings.MIN_COOKING_TIME:
+        raise ValidationError(
+            {'cooking_time': ['Слишком маленькое время приготовления']})
     return data
 
 

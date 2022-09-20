@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import Favorite, IngredientAmount, Recipe, Cart
 from recipes.models import Ingredient, Tag
 from recipes.validators import validate_ingredients, validate_tags
+from recipes.validators import validate_cooking_time
 from users.serializers import CustomUserSerializer
 
 
@@ -37,8 +39,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         read_only=True, many=True, source='ingredientamount_set')
     image = Base64ImageField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(
+        method_name='get_is_favorited')
+    is_in_shopping_cart = serializers.SerializerMethodField(
+        method_name='get_is_in_shopping_cart')
 
     class Meta:
         model = Recipe
@@ -70,6 +74,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = Tag.objects.filter(id__in=valid_tags)
         recipe.tags.set(tags)
 
+    @transaction.atomic
     def create(self, validated_data):
         valid_ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
@@ -79,10 +84,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
+        validate_cooking_time(self.initial_data.get('cooking_time'))
         valid_ingredients = validate_ingredients(ingredients)
         data['ingredients'] = valid_ingredients
         return data
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('image', instance.image)
