@@ -9,6 +9,9 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
+MIN_COOKING_TIME = 1
+MIN_AMMOUNT = 1
+
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [

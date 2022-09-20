@@ -1,5 +1,6 @@
 from django.db import models
 from django.core import validators
+from django.conf import settings
 
 from users.models import User
 
@@ -44,9 +45,9 @@ class Ingredient(models.Model):
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(fields=['name', 'measurement_unit'],
-                                    name='unique ingredient')]
+                                    name='unique ingredient'),)
 
     def __str__(self):
         return self.name
@@ -86,12 +87,13 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Текст рецепта',
         help_text='Укажите инструкции для приготовления')
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         validators=(
             validators.MinValueValidator(
-                1, message='Минимальное время приготовления 1 минута'),),
+                settings.MIN_COOKING_TIME,
+                message='Время приготовления должно быть больше'),),
         verbose_name='Время приготовления',
-        help_text='Укажите время приготовления (более 1 минуты)')
+        help_text='Укажите время приготовления')
 
     class Meta:
         ordering = ('-pub_date',)
@@ -113,21 +115,25 @@ class IngredientAmount(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
         help_text='Укажите необходимый рецепт')
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         validators=(
             validators.MinValueValidator(
-                1, message='Необходим хотя бы один ингридиент'),),
+                settings.MIN_AMMOUNT,
+                message='Необходимо выбрать больше ингридиентов'),),
         verbose_name='Количество',
-        help_text='Укажите количество')
+        help_text='Укажите количество ингридиентов')
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Количество ингридиента'
         verbose_name_plural = 'Количество ингридиентов'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
-                name='unique_recipe_ingredient')]
+                name='unique_recipe_ingredient'),)
+
+    def __str__(self):
+        return self.amount
 
 
 class Favorite(models.Model):
@@ -145,13 +151,16 @@ class Favorite(models.Model):
         help_text='Укажите рецепт')
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['recipe', 'user'],
-                name='unique_favorite_recipe')]
+                name='unique_favorite_recipe'),)
+
+    def __str__(self):
+        return self.recipe
 
 
 class Cart(models.Model):
@@ -169,10 +178,13 @@ class Cart(models.Model):
         help_text='Выберите рецепт')
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзины покупок'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['recipe', 'user'],
-                name='unique_cart_recipe')]
+                name='unique_cart_recipe'),)
+
+    def __str__(self):
+        return self.recipe
