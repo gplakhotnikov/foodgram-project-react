@@ -8,10 +8,10 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
-        verbose_name='Тэг',
+        verbose_name='Название тэга',
         help_text='Укажите необходимый тэг')
     color = models.CharField(
-        max_length=20,
+        max_length=7,
         unique=True,
         verbose_name='Цвет',
         help_text='Укажите цвет (должен быть уникальным)')
@@ -44,23 +44,26 @@ class Ingredient(models.Model):
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'measurement_unit'],
+                                    name='unique ingredient')]
 
     def __str__(self):
         return self.name
 
 
 class Recipe(models.Model):
-    tags = models.ManyToManyField(
-        Tag,
-        related_name='recipes',
-        verbose_name='Тэг',
-        help_text='Укажите необходимый тэг')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор публикации',
         help_text='Укажите автора публикации')
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='recipes',
+        verbose_name='Тэг',
+        help_text='Укажите необходимый тэг')
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
@@ -102,7 +105,7 @@ class Recipe(models.Model):
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         verbose_name='Ингридиент',
         help_text='Укажите необходимый ингридиент')
     recipe = models.ForeignKey(

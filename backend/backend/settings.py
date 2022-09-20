@@ -21,10 +21,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'dotenv',
     'api',
     'users',
-    'recipes',
-    'dotenv', ]
+    'recipes', ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -36,6 +36,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware', ]
 
 ROOT_URLCONF = 'backend.urls'
+
+#DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 TEMPLATES = [
     {
@@ -75,7 +77,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -85,11 +87,12 @@ USE_TZ = True
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly', ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', ],
     'DEFAULT_PAGINATION_CLASS':
-        'api.pagination.LimitPagination',
+        'api.pagination.CustomPagination',
     'PAGE_SIZE': 6, }
 
 AUTH_USER_MODEL = 'users.User'
@@ -100,6 +103,7 @@ DJOSER = {
         'user': 'users.serializers.CustomUserSerializer',
         'current_user': 'users.serializers.CustomUserSerializer',
         'user_create': 'users.serializers.CustomUserSerializer', },
+    "SEND_ACTIVATION_EMAIL": False,
     'HIDE_USERS': False,
     'PERMISSIONS': {
         'user': ['users.permissions.AdminOrReadOnly'],

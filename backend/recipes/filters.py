@@ -2,9 +2,12 @@ from django_filters import ModelMultipleChoiceFilter
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Recipe
-from recipes.models import Tag
+from recipes.models import Recipe, Tag
 from users.models import User
+
+
+class IngredientSearchFilter(SearchFilter):
+    search_param = 'name'
 
 
 class RecipeFilter(FilterSet):
@@ -29,7 +32,3 @@ class RecipeFilter(FilterSet):
     class Meta:
         model = Recipe
         fields = ('tags', 'author')
-
-
-class IngredientSearchFilter(SearchFilter):
-    search_param = 'name'
