@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
-SECRET_KEY = '9qlbtp=yrqv8m#mxix^qqszo7ml*rnctji)yy%4ahkidv7#e2-'
 
-DEBUG = False
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
