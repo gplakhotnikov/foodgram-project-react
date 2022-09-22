@@ -22,6 +22,10 @@ docker-compose exec backend python manage.py load_ingredients
 docker-compose exec backend python manage.py load_tags
 
 
+--  Копирование на сервер из папки infra:
+scp -p docker-compose.yml gplakhotnikov@84.201.154.199:/home/gplakhotnikov/foodgram/infra/docker-compose.yml
+
+
 --- API документация:
 http://localhost/api/docs/redoc.html
 

@@ -15,7 +15,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
 
     @action(detail=False, url_path='subscriptions',
-            url_name='subscriptions', permission_classes=[IsAuthenticated])
+            url_name='subscriptions', permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
         user = request.user
         queryset = user.follower.all()
@@ -24,8 +24,8 @@ class CustomUserViewSet(UserViewSet):
             pages, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['post', 'delete'], detail=True, url_path='subscribe',
-            url_name='subscribe', permission_classes=[IsAuthenticated])
+    @action(methods=('post', 'delete'), detail=True, url_path='subscribe',
+            url_name='subscribe', permission_classes=(IsAuthenticated,))
     def subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, id=id)

@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG')
+DEBUG = (os.getenv('DEBUG') == 'True')
 
 MIN_COOKING_TIME = 1
 MIN_AMMOUNT = 1

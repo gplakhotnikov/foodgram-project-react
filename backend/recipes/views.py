@@ -46,7 +46,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         relation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['post', 'delete'], detail=True, url_path='favorite',
+    @action(methods=('post', 'delete'), detail=True, url_path='favorite',
             url_name='favorite')
     def favorite(self, request, pk=None):
         user = request.user
@@ -58,7 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.delete_relation(Favorite, user, pk, name)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(methods=['post', 'delete'], detail=True, url_path='shopping_cart',
+    @action(methods=('post', 'delete'), detail=True, url_path='shopping_cart',
             url_name='shopping_cart')
     def shopping_cart(self, request, pk=None):
         user = request.user
@@ -70,52 +70,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.delete_relation(Cart, user, pk, name)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(methods=['get'], detail=False, url_path='download_shopping_cart',
+    @action(methods=('get',), detail=False, url_path='download_shopping_cart',
             url_name='download_shopping_cart')
     def download_cart(self, request):
         user = request.user
-        filename = settings.EXPORT_FILE_NAME
-        content_type = settings.EXPORT_CONTENT_TYPE
-
         ingredients = IngredientAmount.objects.filter(
             recipe__cart__user=user).values(
                 'ingredient__name', 'ingredient__measurement_unit').annotate(
                     Sum('amount', distinct=True))
-        print(ingredients)
         text_list = ['Список покупок:\n']
         text_list += ['\n']
         text_list += [
             f'{i.get("ingredient__name").capitalize()} '
             f'({i.get("ingredient__measurement_unit")}) - '
             f'{i.get("amount__sum")}\n' for i in list(ingredients)]
-
-        """
-        ingredients = IngredientAmount.objects.filter(
-            recipe__cart__user=user).values_list(
-            'ingredient__name', 'ingredient__measurement_unit',
-            'amount')
-        final_list = {}
-        for item in ingredients:
-            name = item[0]
-            if name not in final_list:
-                final_list[name] = {
-                    'measurement_unit': item[1],
-                    'amount': item[2]
-                }
-            else:
-                final_list[name]['amount'] += item[2]
-        text_list = ['Список покупок:\n']
-        text_list += ['\n']
-        text_list += [
-            f'{key.capitalize()} '
-            f'({value.get("measurement_unit")}) '
-            f'{value.get("amount")}\n' for key, value in final_list.items()]
-        """
         text_list += ['\n']
         text_list += ['Сгенерировано приложением Foodgram']
-        response = HttpResponse(text_list, content_type=content_type)
+        response = HttpResponse(
+            text_list,
+            content_type=settings.EXPORT_CONTENT_TYPE)
         response['Content-Disposition'] = (
-            f'attachment; filename="{filename}"')
+            f'attachment; filename="{settings.EXPORT_FILE_NAME}"')
         return response
 
 
