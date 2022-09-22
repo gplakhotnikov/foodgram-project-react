@@ -28,6 +28,8 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ('id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
@@ -44,7 +46,7 @@ class Subscription(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Автор',
+        verbose_name='Автор (подписка)',
         help_text='Тот, на кого подписываются')
 
     class Meta:
@@ -52,5 +54,8 @@ class Subscription(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = (
             models.UniqueConstraint(
-                fields=['author', 'user'],
+                fields=('author', 'user'),
                 name='unique_follow'),)
+
+    def __str__(self):
+        return f"{self.user} подписан на {self.author}"

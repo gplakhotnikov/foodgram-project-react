@@ -1,11 +1,11 @@
-# from django.db.models import Sum
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-# from rest_framework.permissions import AllowAny
 
 from recipes.filters import RecipeFilter, IngredientSearchFilter
 from recipes.models import Favorite, Recipe, Cart, IngredientAmount
@@ -74,12 +74,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             url_name='download_shopping_cart')
     def download_cart(self, request):
         user = request.user
-        filename = 'shopping_list.txt'
+        filename = settings.EXPORT_FILE_NAME
+        content_type = settings.EXPORT_CONTENT_TYPE
+
+        ingredients = IngredientAmount.objects.filter(
+            recipe__cart__user=user).values(
+                'ingredient__name', 'ingredient__measurement_unit').annotate(
+                    Sum('amount', distinct=True))
+        print(ingredients)
+        text_list = ['Список покупок:\n']
+        text_list += ['\n']
+        text_list += [
+            f'{i.get("ingredient__name").capitalize()} '
+            f'({i.get("ingredient__measurement_unit")}) - '
+            f'{i.get("amount__sum")}\n' for i in list(ingredients)]
+
+        """
         ingredients = IngredientAmount.objects.filter(
             recipe__cart__user=user).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'amount')
-
         final_list = {}
         for item in ingredients:
             name = item[0]
@@ -90,16 +104,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 }
             else:
                 final_list[name]['amount'] += item[2]
-
         text_list = ['Список покупок:\n']
         text_list += ['\n']
         text_list += [
             f'{key.capitalize()} '
             f'({value.get("measurement_unit")}) '
             f'{value.get("amount")}\n' for key, value in final_list.items()]
+        """
         text_list += ['\n']
         text_list += ['Сгенерировано приложением Foodgram']
-        response = HttpResponse(text_list, content_type='text/plain')
+        response = HttpResponse(text_list, content_type=content_type)
         response['Content-Disposition'] = (
             f'attachment; filename="{filename}"')
         return response
@@ -115,5 +129,5 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = [IngredientSearchFilter]
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)

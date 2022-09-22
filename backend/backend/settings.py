@@ -11,6 +11,8 @@ DEBUG = os.getenv('DEBUG')
 
 MIN_COOKING_TIME = 1
 MIN_AMMOUNT = 1
+EXPORT_FILE_NAME = 'shopping_list.txt'
+EXPORT_CONTENT_TYPE = 'text/plain'
 
 ALLOWED_HOSTS = ['*']
 

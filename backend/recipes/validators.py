@@ -27,7 +27,7 @@ def validate_ingredients(data):
         amount = int(ingredient.get('amount'))
         if amount < settings.MIN_AMMOUNT:
             raise ValidationError(
-                {'amount': ['Необходимо выбрать большее количество ингридиента']})
+                {'amount': ['Необходимо выбрать большее количество']})
     return data
 
 

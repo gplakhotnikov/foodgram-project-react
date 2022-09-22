@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from users.serializers import SubscriptionSerializer
+from users.serializers import SubscriptionValidateSerializer
 
 from users.models import Subscription, User
 
@@ -28,20 +29,23 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, id=id)
-        if user == author:
-            return Response(
-                {'errors': 'Нельзя подписаться на самого себя'},
-                status=status.HTTP_400_BAD_REQUEST)
+
         subscription = Subscription.objects.filter(
             author=author, user=user)
         if request.method == 'POST':
-            if subscription.exists():
+            data = {
+                'user': user.id,
+                'author': author.id}
+            serializer = SubscriptionValidateSerializer(
+                data=data,
+                context={'request': request})
+
+            if not serializer.is_valid():
                 return Response(
-                    {'errors': 'Вы уже подписаны на этого автора'},
+                    serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
-            queryset = Subscription.objects.create(author=author, user=user)
-            serializer = SubscriptionSerializer(
-                queryset, context={'request': request})
+
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             if not subscription.exists():

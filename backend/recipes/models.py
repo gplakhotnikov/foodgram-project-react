@@ -46,7 +46,7 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         constraints = (
-            models.UniqueConstraint(fields=['name', 'measurement_unit'],
+            models.UniqueConstraint(fields=('name', 'measurement_unit'),
                                     name='unique ingredient'),)
 
     def __str__(self):
@@ -129,11 +129,11 @@ class IngredientAmount(models.Model):
         verbose_name_plural = 'Количество ингридиентов'
         constraints = (
             models.UniqueConstraint(
-                fields=['recipe', 'ingredient'],
+                fields=('recipe', 'ingredient'),
                 name='unique_recipe_ingredient'),)
 
     def __str__(self):
-        return self.amount
+        return f'Количество {self.amount} ингридиента {self.ingredient}'
 
 
 class Favorite(models.Model):
@@ -156,11 +156,11 @@ class Favorite(models.Model):
         verbose_name_plural = 'Избранные'
         constraints = (
             models.UniqueConstraint(
-                fields=['recipe', 'user'],
+                fields=('recipe', 'user'),
                 name='unique_favorite_recipe'),)
 
     def __str__(self):
-        return self.recipe
+        return f'Рецепт {self.recipe} в избранном у {self.user}'
 
 
 class Cart(models.Model):
@@ -183,8 +183,8 @@ class Cart(models.Model):
         verbose_name_plural = 'Корзины покупок'
         constraints = (
             models.UniqueConstraint(
-                fields=['recipe', 'user'],
+                fields=('recipe', 'user'),
                 name='unique_cart_recipe'),)
 
     def __str__(self):
-        return self.recipe
+        return f'Рецепт {self.recipe} в корзине у {self.user}'

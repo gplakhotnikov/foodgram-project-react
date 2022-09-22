@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import Subscription, User
 
@@ -62,3 +63,36 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             recipe_obj = recipe_obj[:int(limit)]
         serializer = ShortRecipeSerializer(recipe_obj, many=True)
         return serializer.data
+
+
+class SubscriptionValidateSerializer(serializers.ModelSerializer):
+
+    user = serializers.SlugRelatedField(
+        slug_field='id',
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault())
+    author = serializers.SlugRelatedField(
+        slug_field='id',
+        queryset=User.objects.all(),)
+
+    class Meta:
+        fields = '__all__'
+        model = Subscription
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Subscription.objects.all(),
+                fields=('user', 'author'),
+                message='Вы уже подписаны на этого автора'),)
+
+    def validate(self, data):
+        if data['user'] == data['author']:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя')
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return SubscriptionSerializer(
+            instance.following,
+            context={'request': request}
+        ).data
