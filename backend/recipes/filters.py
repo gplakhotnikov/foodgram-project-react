@@ -17,7 +17,7 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all())
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     is_favorited = filters.BooleanFilter(method='filter_favorited')
-    in_cart = filters.BooleanFilter(method='filter_shopping_cart')
+    is_in_shopping_cart = filters.BooleanFilter(method='filter_shopping_cart')
 
     def filter_favorited(self, queryset, name, value):
         if value:

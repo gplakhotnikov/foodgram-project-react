@@ -7,7 +7,6 @@ from users.models import User, Subscription
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     search_fields = ('email', 'username')
-    list_filter = ('email', 'username')
     ordering = ('pk',)
     empty_value_display = '-пусто-'
 

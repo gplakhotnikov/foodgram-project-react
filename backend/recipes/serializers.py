@@ -10,6 +10,11 @@ from recipes.validators import validate_cooking_time
 from users.serializers import CustomUserSerializer
 
 
+def required(value):
+    if value is None:
+        raise serializers.ValidationError('Это обязательное поле')
+
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -38,7 +43,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(read_only=True, many=True)
     ingredients = IngredientAmountSerializer(
         read_only=True, many=True, source='ingredientamount_set')
-    image = Base64ImageField()
+    image = Base64ImageField(validators=[required])
     is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorited')
     is_in_shopping_cart = serializers.SerializerMethodField(
@@ -49,6 +54,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'tags', 'author', 'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
+        extra_kwargs = {'image': {'required': True}}
 
     def get_is_favorited(self, obj):
         user_id = self.context.get('request').user.id
@@ -107,9 +113,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
+    image = Base64ImageField(validators=[required])
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
         read_only_fields = ('id', 'name', 'image', 'cooking_time')
+        extra_kwargs = {'image': {'required': True}}

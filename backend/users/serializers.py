@@ -4,6 +4,11 @@ from rest_framework.validators import UniqueTogetherValidator
 from users.models import Subscription, User
 
 
+def required(value):
+    if value is None:
+        raise serializers.ValidationError('Это обязательное поле')
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     is_subscribed = serializers.SerializerMethodField(
@@ -15,6 +20,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email', 'id', 'username', 'first_name',
             'last_name', 'password', 'is_subscribed')
         write_only_fields = ('password',)
+        extra_kwargs = {'first_name': {'required': True},
+                        'last_name': {'required': True}}
 
     def get_is_subscribed(self, obj):
         user_id = self.context.get('request').user.id

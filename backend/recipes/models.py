@@ -178,7 +178,6 @@ class Cart(models.Model):
         help_text='Выберите рецепт')
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзины покупок'
         constraints = (

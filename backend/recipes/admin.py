@@ -23,6 +23,7 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit',)
     list_editable = ('name', 'measurement_unit')
+    list_filter = ('measurement_unit',)
     search_fields = ('name', 'measurement_unit')
     empty_value_display = '-пусто-'
 
@@ -36,8 +37,8 @@ class RecipeAdmin(admin.ModelAdmin):
         'image',
         'count_added')
     exclude = ('ingredients',)
-    list_filter = ('author', 'name', 'tags')
-    search_fields = ('name', 'author')
+    list_filter = ('tags',)
+    search_fields = ('name', 'author__username', 'author__email')
     empty_value_display = '-пусто-'
 
     def count_added(self, obj):
@@ -51,14 +52,28 @@ class IngredientAmountAdmin(admin.ModelAdmin):
         'ingredient',
         'recipe',
         'amount')
+    list_filter = ('recipe__tags',)
+    search_fields = ('recipe__name',)
     empty_value_display = '-пусто-'
 
 
 @admin.register(Favorite)
-@admin.register(Cart)
 class FavoriteShoppingAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'user',
+        'recipe',)
+    list_filter = ('recipe__tags',)
+    search_fields = ('recipe__name', 'user__username', 'user__email')
+    empty_value_display = '-пусто-'
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
         'recipe')
+    list_filter = ('recipe__tags',)
+    search_fields = ('recipe__name', 'user__username', 'user__email')
     empty_value_display = '-пусто-'

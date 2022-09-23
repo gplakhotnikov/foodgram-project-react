@@ -39,13 +39,13 @@ class CustomUserViewSet(UserViewSet):
             serializer = SubscriptionValidateSerializer(
                 data=data,
                 context={'request': request})
-
             if not serializer.is_valid():
                 return Response(
                     serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
-
-            serializer.save()
+            queryset = Subscription.objects.create(author=author, user=user)
+            serializer = SubscriptionSerializer(
+                queryset, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             if not subscription.exists():
